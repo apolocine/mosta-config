@@ -1,0 +1,59 @@
+{
+  "name": "@mostajs/config",
+  "version": "1.0.0",
+  "description": "Environment variable loader with MOSTA_ENV profile cascade — one .env, multiple profiles, silent fallback",
+  "author": "Dr Hamid MADANI <drmdh@msn.com>",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "keywords": [
+    "config",
+    "env",
+    "environment",
+    "profile",
+    "dotenv",
+    "nodejs",
+    "typescript",
+    "mosta",
+    "mostajs"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apolocine/mosta-config"
+  },
+  "homepage": "https://mostajs.dev/packages/config",
+  "bugs": {
+    "url": "https://github.com/apolocine/mosta-config/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "node test-scripts/test-env-profile.mjs",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/apolocine"
+  }
+}
