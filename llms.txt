@@ -1,0 +1,73 @@
+# @mostajs/config — fiche LLM
+> Chargeur de variables d'environnement avec cascade de profils MOSTA_ENV — un seul .env, plusieurs profils, fallback silencieux.
+
+- Version: 1.0.0 · Licence: AGPL-3.0-or-later · Auteur: Dr Hamid MADANI <drmdh@msn.com>
+- Chemin: mostajs/mosta-config · Statut audit: complet (dist/)
+
+## RÔLE
+Lit les variables d'environnement avec une cascade de résolution pilotée par un unique
+MOSTA_ENV. Un seul fichier .env contient les valeurs par défaut plus des surcharges
+préfixées par profil (TEST, DEV, STAGING, PROD). Évite la multiplication des .env.test /
+.env.development / .env.production et leur désynchronisation. Ne lève jamais d'exception :
+sur clé absente, retombe silencieusement sur la variable simple puis sur le fallback.
+
+## INSTALLATION
+npm i @mostajs/config
+
+## EXPORTS
+- getEnv — lecture string
+- getEnvBool — lecture booléenne
+- getEnvNumber — lecture numérique
+- getCurrentProfile — nom du profil actif
+
+## API — SIGNATURES
+- getEnv(key: string, fallback: string): string
+- getEnv(key: string, fallback?: undefined): string | undefined
+  // le type de retour se rétrécit à `string` quand un fallback string est fourni
+- getEnvBool(key: string, fallback?: boolean): boolean
+  // true uniquement si la valeur résolue vaut littéralement 'true' (insensible à la casse, trimmé)
+- getEnvNumber(key: string, fallback: number): number
+- getEnvNumber(key: string, fallback?: undefined): number | undefined
+  // retourne fallback si la valeur est absente ou n'est pas un nombre fini
+- getCurrentProfile(): string | undefined  // nom du profil actif (trimmé) ou undefined
+
+## TYPES CLÉS
+Aucune interface exportée — uniquement les surcharges de fonctions ci-dessus.
+
+## PATTERN
+```ts
+import { getEnv, getEnvBool, getEnvNumber, getCurrentProfile } from '@mostajs/config';
+
+const dialect  = getEnv('DB_DIALECT', 'sqlite');   // string garanti
+const showSql  = getEnvBool('DB_SHOW_SQL', false);
+const poolSize = getEnvNumber('DB_POOL_SIZE', 10);
+console.log(`Profil: ${getCurrentProfile() ?? 'none'}`);
+```
+Fichier .env :
+```
+MOSTA_ENV=TEST
+DB_DIALECT=sqlite
+DEV_DB_DIALECT=postgres
+PROD_DB_DIALECT=mongodb
+```
+
+## CASCADE DE RÉSOLUTION (première valeur non-vide gagne)
+1. `${MOSTA_ENV}_${key}` — clé préfixée par profil (si MOSTA_ENV défini et non vide)
+2. `${key}` — variable simple
+3. `fallback` — argument par défaut
+4. `undefined` — rien trouvé, pas de défaut
+
+## DÉPEND DE
+Aucun module @mostajs/*. Aucune dépendance runtime (uniquement devDependencies). Node >= 18.
+
+## PIÈGES
+- Une chaîne vide ('') est traitée comme « non défini » : une surcharge profil vide retombe sur la variable simple, jamais sur ''.
+- MOSTA_ENV est trimmé : `MOSTA_ENV=  TEST` résout vers le profil `TEST`.
+- Le loader ne LIT PAS le fichier .env (pas de dotenv intégré) : il lit process.env. Charger le .env en amont (dotenv, runtime, orchestrateur).
+- getEnvBool ne reconnaît QUE 'true' comme vrai ; '1', 'yes', 'on' renvoient false.
+- Nommage attendu : profil en MAJUSCULES, variable en UPPER_SNAKE_CASE, clé profilée = `{PROFIL}_{VARIABLE}` (séparateur underscore, jamais le point).
+
+## RÉFÉRENCES
+- README.md (cascade, exemples, garantie de fallback silencieux)
+- test-scripts/test-env-profile.mjs
+- LICENSE
